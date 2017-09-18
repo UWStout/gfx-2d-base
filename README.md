@@ -17,11 +17,15 @@ The basic steps for utilizing this repository:
 
 Navigate into your workspace directory and clone the repo with git:
 
-  git clone https://github.com/lean/phaser-es6-webpack.git .
+```
+git clone https://github.com/lean/phaser-es6-webpack.git .
+```
 
 Switch to the tag that matches the project you want to work on:
 
-  git checkout <tagname>
+```
+git checkout <tagname>
+```
 
 See the github website for lists of accepted tagnames.
 
@@ -33,12 +37,16 @@ Download and run the LTS version available from https://nodejs.org/en/
 
 Navigate to the repo directory and run:
 
-  npm install
+```
+npm install
+```
 
 If this is not the first time you have run 'npm install' or if you have just switched
 tags, it is a good idea to remove the previously installed dependencies first:
 
-  rm -rf node_modules/
+```
+rm -rf node_modules/
+```
 
 Note, yarn is also supported.
 
@@ -47,7 +55,9 @@ Note, yarn is also supported.
 While working on the project, you should first run the development server.  Change to
 the code repo directory and run:
 
-  npm run dev
+```
+npm run dev
+```
 
 This will compile the JavaScript files and package them into 'dist/bundle.js'. It will
 also run a local web server on port 3000. Lastly, it opens 'localhost:3000' in your
@@ -75,7 +85,9 @@ there are some changes that will cause the browser to get out of sync:
 When you project is done and you want to build the FINAL version you would give to normal users
 then change to the directory of the repo and run:
 
-  npm run deploy
+```
+npm run deploy
+```
 
 This builds the 'dist/bundle.js' file differently so that its size is minimized and the code is
 further optimized. This is not required for your class submissions but you should know it exists.
