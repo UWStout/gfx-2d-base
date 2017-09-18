@@ -1,13 +1,12 @@
 # UW Stout CS 343 2D Project Base
-#### A codebase for building the projects assigned in CS 343, Mathematical Foundations
-#### of Computer Graphics, at the University of Wisconsin Stout.
+#### A codebase for building the projects assigned in CS 343, Mathematical Foundations of Computer Graphics, at the University of Wisconsin Stout.
 
 ## Features
 - ESLINT with JavaScript Standard Style configuration
-- Latest generation of JavaScript "transpiled" to browser JS (ES5) (via Babel)
-- Browsers synchronize and hot-reload as you make changes (via Browsersync)
-- Module JavaScript that is re-targeted to a web browser env (via webpack)
-- Packaging and loading of Bootstrap, jQuery, & nanoGL (via webpack)
+- Latest generation of JavaScript "transpiled" to browser JS (ES5) (via [Babel](https://babeljs.io))
+- Browsers synchronize and hot-reload as you make changes (via [Browsersync](https://browsersync.io))
+- Module JavaScript that is re-targeted to a web browser env (via [webpack](https://webpack.js.org))
+- Packaging and loading of Bootstrap, jQuery, & nanoGL (via [webpack](https://webpack.js.org))
 - Pre-configured 'deploy' target to minify and uglify your JavaScript
 
 # Setup
@@ -27,7 +26,7 @@ Switch to the tag that matches the project you want to work on:
 git checkout <tagname>
 ```
 
-See the github website for lists of accepted tagnames.
+See the [github website](https://github.com/UWStout/gfx-2d-base/tags) for lists of accepted tagnames.
 
 ## 2. Install node.js and npm:
 
