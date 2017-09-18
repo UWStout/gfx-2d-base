@@ -3,40 +3,124 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>CS 343: Test Project - Hello World</title>
+    <title>CS 343: Project 1 - Transformer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body style="padding-top:15px; padding-bottom:15px;">
   <div class="container">
 
     <div class="page-header">
-        <h1>Hello World Test Project // CS 343, UW Stout</h1>
+        <h1>Project 1 - Transformer // CS 343, UW Stout</h1>
     </div>
 
     <div class="row">
-      <canvas id="c" class="rounded-border" style="width:100%; height:733px;"></canvas>
+
+      <!-- The Main WebGL rendering window -->
+      <div class="col-md-9">
+        <canvas id="c" class="rounded-border" style="width:100%; height:733px;"></canvas>
+        <a class="btn btn-default" id="saveImage" type="button" download="scene.png">Save Scene as Image</a>
+      </div>
+
+      <!--  Column for the GUI controls -->
+      <div class="col-md-3">
+
+        <!--  Currently active shape type for new shapes -->
+        <div class="form-group">
+          <label for="shapeType">New Shape Type</label>
+          <select class="form-control" size="3" id="shapeType">
+            <option value="circle" selected>Circle</option>
+            <option value="line">Line</option>
+            <option value="triangle">Triangle</option>
+          </select>
+        </div>
+
+        <!--  The list of shapes in the scene-->
+        <div class="form-group">
+          <label for="shapeSelect">Shapes in Scene</label>
+          <select class="form-control" size="9" id="shapeSelect">
+          </select>
+        </div>
+
+        <!-- Controls for the current/new shape's properties -->
+        <label>Active/New Shape Properties</label>
+        <div class="form-group rounded-border">
+          <fieldset id="propertiesSet">
+            <label class="control-label" for="redColor">RGB Color:</label><br>
+            <div class="form-inline">
+              <input type="number" class="form-control shape-prop-control" style="width:30%;" value="255" min="0" max="255" name="redColor" id="redColor">
+              <input type="number" class="form-control shape-prop-control" style="width:30%;" value="255" min="0" max="255" name="greenColor" id="greenColor">
+              <input type="number" class="form-control shape-prop-control" style="width:30%;" value="255" min="0" max="255" name="blueColor" id="blueColor">
+            </div>
+
+            <div class="form-group" style="padding-top:3px;">
+              <select class="form-control" id="predefColors" style="width:93%;">
+              </select>
+            </div>
+
+            <hr style="margin:10px 0">
+
+            <div class="form-inline">
+              <label class="control-label" for="radius">Radius: </label>
+              <input type="number" class="form-control shape-prop-control" value="10.0" min="0" max="999.9" name="radius" id="radius">
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <div class="checkbox-inline">
+                <label><input type="checkbox" name="filled" id="filled" checked>Filled</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Controls for the current shape's transformation -->
+        <label>Active Shape Transformation</label>
+        <div class="form-group rounded-border">
+          <fieldset id="transformSet" disabled>
+            <label for="xTranslate" class="control-label">Translation:</label><br>
+            <div class="form-inline">
+              <input type="number" class="form-control shape-trans-control" value="0.0" step="1.0" min="-9999" max="9999" name="xTranslate" id="xTranslate">
+              <input type="number" class="form-control shape-trans-control" value="0.0" step="1.0" min="-9999" max="9999" name="yTranslate" id="yTranslate">
+            </div>
+
+            <hr style="margin:10px 0">
+
+            <label for="xScale" class="control-label">Scale:</label>
+            <div class="form-inline">
+              <input type="number" class="form-control shape-trans-control" value="1.0" step="0.1" min="-9999" max="9999" name="xScale" id="xScale">
+              <input type="number" class="form-control shape-trans-control" value="1.0" step="0.1" min="-9999" max="9999" name="yScale" id="yScale">
+            </div>
+
+            <hr style="margin:10px 0">
+
+            <label for="rotAngle" class="control-label">Rotation:</label><br>
+            <div class="form-inline">
+              <input type="number" class="form-control shape-trans-control" value="0.0" min="-180" max="180" name="rotAngle" id="rotAngle">
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <div class="checkbox-inline">
+                <label><input type="checkbox" name="pivotCentroid" id="pivotCentroid" checked>Centered
+                </label>
+              </div>
+            </div>
+
+          </fieldset>
+        </div>
+      </div>
+
     </div>
 
   </div>
 
-  <!-- Vertex Shader - Project point and copy color -->
+  <!-- Vertex Shader - Just transforms point to CVV -->
   <script id="vs" type="x-shader/x-vertex">
     precision mediump float;
 
-    // Input Variables
     attribute vec3 aPosition;
-    attribute vec3 aColor;
     uniform mat4 uProjection;
-
-    // Output Variable
-    varying vec4 vColor;
 
     void main() {
       gl_Position = uProjection * vec4(aPosition, 1.0);
-      vColor = vec4(aColor, 1.0);
     }
   </script>
 
@@ -44,11 +128,11 @@
   <script id="fs" type="x-shader/x-fragment">
     precision mediump float;
 
-    // Input from the Vertex Shader
-    varying vec4 vColor;
+    uniform vec3 uColor;
 
     void main() {
-      gl_FragColor = vColor;
+      gl_FragColor.rgb = uColor;
+      gl_FragColor.a = 1.0;
     }
   </script>
 
