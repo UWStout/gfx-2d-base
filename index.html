@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CS 343: Test Project - Hello World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+</head>
+
+<body style="padding-top:15px; padding-bottom:15px;">
+  <div class="container">
+
+    <div class="page-header">
+        <h1>Hello World Test Project // CS 343, UW Stout</h1>
+    </div>
+
+    <div class="row">
+      <canvas id="c" class="rounded-border" style="width:100%; height:733px;"></canvas>
+    </div>
+
+  </div>
+
+  <!-- Vertex Shader - Project point and copy color -->
+  <script id="vs" type="x-shader/x-vertex">
+    precision mediump float;
+
+    // Input Variables
+    attribute vec3 aPosition;
+    attribute vec3 aColor;
+    uniform mat4 uProjection;
+
+    // Output Variable
+    varying vec4 vColor;
+
+    void main() {
+      gl_Position = uProjection * vec4(aPosition, 1.0);
+      vColor = vec4(aColor, 1.0);
+    }
+  </script>
+
+  <!-- Fragment Shader - Assign passed in color to this pixel -->
+  <script id="fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    // Input from the Vertex Shader
+    varying vec4 vColor;
+
+    void main() {
+      gl_FragColor = vColor;
+    }
+  </script>
+
+  <script src="dist/vendor.bundle.js"></script>
+  <script src="dist/bundle.js"></script>
+
+</body>
+
+</html>
