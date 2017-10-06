@@ -14,10 +14,11 @@ The basic steps for utilizing this repository:
 
 ## 1. Clone the repo and pick a Tag:
 
-Navigate into your workspace directory and clone the repo with git:
+Navigate into your workspace directory and clone the repo (and its tags) with git:
 
 ```
 git clone https://github.com/lean/phaser-es6-webpack.git .
+git fetch --tags
 ```
 
 Switch to the tag that matches the project you want to work on:
