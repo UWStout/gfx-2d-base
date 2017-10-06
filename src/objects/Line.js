@@ -2,8 +2,10 @@
 import Shape from './Shape'
 import Point from './Point'
 
-// TODO: Import the transformPoint function from matrix_math
-//       This is needed inside the updateBuffers() function
+// Import the setPixel funciton for rasterizing
+import { setPixel } from '../main'
+
+// TODO: Import needed functions from ../matrix_math.js
 
 // Import ArrayBuffer object from the nanogl library
 import ArrayBuffer from 'nanogl/arraybuffer'
@@ -78,6 +80,38 @@ class Line extends Shape {
     this.buffer = new ArrayBuffer(gl, this._positions)
     this.buffer.attrib('aPosition', 3, gl.FLOAT)
   }
+
+  // Override parent function to rasterize a line
+  rasterize () {
+    // TODO: Complete this function to do the following
+    // - Transform and round the endpoints
+    // - Call Line.bresenham (defined below) with the ROUNDED points
+
+    // NOTE: This line is temporary. It should be different in the
+    // final version of this function.
+    Line.bresenham(this.P1, this.P2, this.color)
+  }
+}
+
+// TODO: Complete this function as Bresenham's Line algorithm
+// Rasterize a general line using Bresenham's algorithm. You may
+// not use WebGL functions or any other libraries to draw. All
+// changes to the canvas must happen through the 'setPixel' func.
+Line.bresenham = function (P1, P2, color) {
+  // Important notes:
+  // - Do NOT transform or round P1 and P2 (this has already happened)
+  // - Handle perfectly horiz and vert lines as special cases
+  //   > Use Shape.rasterizeHLine or Shape.rasterizeVLine
+  //   > You will need to import these functions to use them
+  // - For all remaining lines use Bresenham's algorithm
+  // - You must use integer arithmetic EVERYWHERE
+  // - You can only use integer addition inside the loop
+  // - All types of lines (e.g. all slopes) must be handled
+
+  // NOTE: These two lines are temporary. Remove them in the final
+  // version of this function.
+  setPixel(P1, color)
+  setPixel(P2, color)
 }
 
 // Expose the Line class to other modules for importing

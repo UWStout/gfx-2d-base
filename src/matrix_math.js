@@ -1,4 +1,5 @@
 // TODO: Import any objects or functions needed here
+import Point from './objects/Point.js'
 
 // TODO: Provide the following functions
 //   - makeIdentityMatrix ()
@@ -25,6 +26,10 @@
 // vector multiplication. Return the new/transformed point.
 // NOTE: You will likely need to import the Point object at the
 //       top of the file (see Shape.js for an example of this)
+export function transformPoint (P, M) {
+  let newP = new Point(P.x, P.y)
+  return newP
+}
 
 // TODO: Provide a function to build the composite transformation
 //       for a given shape object.

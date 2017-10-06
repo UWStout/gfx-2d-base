@@ -3,3 +3,13 @@
   border-radius: 4px;
   padding: 6px 6px 6px 6px
 }
+
+.relative {
+  width:100%; height:810px;
+  position: relative;
+}
+
+.absolute {
+  width:100%; height:810px;
+  position: absolute;
+}

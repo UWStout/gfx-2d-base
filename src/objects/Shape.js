@@ -2,6 +2,8 @@
 import Color from './Color'
 import Point from './Point'
 
+import { setPixel } from '../main'
+
 // TODO: Import any other functions or classes you need here
 
 /** @class Object to represent a drawable 2D shape */
@@ -27,7 +29,7 @@ class Shape {
 
     // Default transformation properties
     // TODO: Assign REASONABLE default values for the following properties
-    //       which are all be members of 'this'
+    //       which are all members of 'this'
     // - tx, ty, sx, sy (numbers for translation and scale)
     // - rotAngle (angle of rotation in degrees)
     // - rotAroundCenter (boolean indicating to rotate around center of object)
@@ -73,12 +75,48 @@ class Shape {
   updateBuffers (gl) {
     console.error('ERROR: Abstract Shape.updateBuffers() called.')
   }
+
+  /**
+   * Rasterize this shape by drawing pixels (should be overriden)
+   * @abstract
+   */
+  rasterize () {
+    console.error('ERROR: Abstract Shape.rasterize() called.')
+  }
 }
 
 // Expose the shape object to other files
 export default Shape
 
-/* The variables below are 'static' members of the Shape class */
+/* The variables and functions below are 'static' members of the Shape class */
+
+// TODO: Implement rasterizeHLine
+// Rasterize a perfectly horizontal line. You may not use WebGL
+// functions or any other libraries to draw. All changes to the
+// canvas must happen through the 'setPixel' function.
+Shape.rasterizeHLine = function (x1, x2, y, color) {
+  // Important notes:
+  // - Do NOT transform or round the coordinates
+  // - x1 and x2 may NOT be in increasing order
+
+  // NOTE: Remove these two lines once your function is complete
+  setPixel(new Point(x1, y), color)
+  setPixel(new Point(x2, y), color)
+}
+
+// TODO: Implement rasterizeVLine
+// Rasterize a perfectly vertical line. You may not use WebGL
+// functions or any other libraries to draw. All changes to the
+// canvas must happen through the 'setPixel' function.
+Shape.rasterizeVLine = function (x, y1, y2, color) {
+  // Important notes:
+  // - Do NOT transform or round the coordinates
+  // - y1 and y2 may NOT be in increasing order
+
+  // NOTE: Remove these two lines once your function is complete
+  setPixel(new Point(x, y1), color)
+  setPixel(new Point(x, y2), color)
+}
 
 // An enumeration of the available shape types.
 Shape.SHAPE_TYPE = {

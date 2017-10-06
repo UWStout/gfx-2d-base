@@ -29,9 +29,15 @@ let Interface = {
     $('#saveImage').mouseover(updateData)
 
     // Set event handlers for the canvas and select elements
-    $('#c').click(onClickCanvas)
+    $('#glCanvas').click(onClickCanvas)
+    $('#rasterizerCanvas').click(onClickCanvas)
     $('#shapeType').change(onTypeChanged)
     $('#shapeSelect').change(onActiveChanged)
+
+    // Set event handlers for the rendering mode input elements
+    $('#renderingMode').change(onModeChanged)
+    $('#slowMoCheckbox').change(updateSlowMo)
+    $('#slowMoSpeed').on('input', updateSlowMo)
 
     // Set event handlers for all shape property input elements
     $('.shape-prop-control').on('input', updateShapeProperties)
@@ -78,7 +84,14 @@ let Interface = {
   // These properties are used to communicate with the main.js module
   scene: null,
   gl: null,
-  updateRequested: false
+
+  glUpdateRequested: false,
+  rastUpdateRequested: false,
+
+  rasterizerMode: true,
+
+  slowMoEnabled: false,
+  slowMoSpeed: 3
 }
 
 // Expose the Interface object for use in other modules
@@ -90,7 +103,12 @@ export default Interface
  * @param {e} event A jQuery event object
  */
 function updateData (e) {
-  let dataURL = $('#c')[0].toDataURL()
+  let dataURL
+  if (Interface.rasterizerMode) {
+    dataURL = $('#rasterizerCanvas')[0].toDataURL()
+  } else {
+    dataURL = $('#glCanvas')[0].toDataURL()
+  }
   $('#saveImage').attr('href', dataURL)
 }
 
@@ -108,7 +126,12 @@ let clickList = []
  */
 function onClickCanvas (e) {
   // Compute point in pixel coordinates (note the inverted Y value)
-  let rect = $('#c')[0].getBoundingClientRect()
+  let rect
+  if (Interface.rasterizerMode) {
+    rect = $('#rasterizerCanvas')[0].getBoundingClientRect()
+  } else {
+    rect = $('#glCanvas')[0].getBoundingClientRect()
+  }
   let lastClickPos = new Point(e.clientX - rect.left,
     rect.height - (e.clientY - rect.top))
 
@@ -124,14 +147,14 @@ function onClickCanvas (e) {
   let shapeAdded = false
   switch ($('#shapeType')[0].selectedIndex) {
     case 0: // Circle
-      Interface.scene.push(new Circle(Interface.gl, clickList[0],
+      addShapeToScene(new Circle(Interface.gl, clickList[0],
         GUIRadius(), GUIColor(), GUIFilled()))
       shapeAdded = true
       break
 
     case 1: // Line
       if (clickList.length >= 2) {
-        Interface.scene.push(new Line(Interface.gl, clickList[0],
+        addShapeToScene(new Line(Interface.gl, clickList[0],
           clickList[1], GUIColor(), GUIFilled()))
         shapeAdded = true
       }
@@ -139,7 +162,7 @@ function onClickCanvas (e) {
 
     case 2: // Triangle
       if (clickList.length >= 3) {
-        Interface.scene.push(new Triangle(Interface.gl, clickList[0],
+        addShapeToScene(new Triangle(Interface.gl, clickList[0],
           clickList[1], clickList[2], GUIColor(), GUIFilled()))
         shapeAdded = true
       }
@@ -149,8 +172,42 @@ function onClickCanvas (e) {
   // Things to do every time a shape is added
   if (shapeAdded) {
     updateSceneList()
-    Interface.updateRequested = true
+    Interface.glUpdateRequested = true
     clickList = []
+  }
+}
+
+function addShapeToScene (newShape) {
+  // Generate the pixels for this shape
+  newShape.rasterize()
+
+  // Add to the scene array
+  Interface.scene.push(newShape)
+}
+
+function onModeChanged () {
+  // Clear out old clicks
+  clickList = []
+
+  if ($('#renderingMode')[0].selectedIndex === 0) {
+    Interface.rasterizerMode = true
+    $('#glCanvas')[0].hidden = true
+    $('#rasterizerCanvas')[0].hidden = false
+  } else {
+    Interface.rasterizerMode = false
+    $('#glCanvas')[0].hidden = false
+    $('#rasterizerCanvas')[0].hidden = true
+  }
+}
+
+function updateSlowMo () {
+  Interface.slowMoEnabled = $('#slowMoCheckbox')[0].checked
+  Interface.slowMoSpeed = parseInt($('#slowMoSpeed').val())
+
+  if (Interface.slowMoEnabled) {
+    $('#slowMoSpeed')[0].disabled = false
+  } else {
+    $('#slowMoSpeed')[0].disabled = true
   }
 }
 
@@ -164,6 +221,12 @@ function onTypeChanged () {
   // Deselect any scene shape and disable transformation controls
   $('#shapeSelect')[0].selectedIndex = -1
   $('#transformSet').prop('disabled', true)
+
+  // Reset default radius when we move to circle type (this avoids
+  // the case where we might create circles with zero radius)
+  if ($('#shapeType')[0].selectedIndex === 0) {
+    $('#radius').val(10)
+  }
 }
 
 /**
@@ -186,7 +249,8 @@ function loadPredefinedColor () {
     if (index >= 0 && index < Interface.scene.length) {
       let shape = Interface.scene[$('#shapeSelect')[0].selectedIndex]
       shape.color = newColor
-      Interface.updateRequested = true
+      Interface.glUpdateRequested = true
+      Interface.rastUpdateRequested = true
     }
   }
 }
@@ -246,7 +310,8 @@ function updateShapeProperties () {
     }
 
     // Re-render the scene to show changes
-    Interface.updateRequested = true
+    Interface.glUpdateRequested = true
+    Interface.rastUpdateRequested = true
   }
 }
 
@@ -273,7 +338,8 @@ function updateShapeTransformation () {
     shape.updateBuffers(Interface.gl)
 
     // Re-render the scene to show changes
-    Interface.updateRequested = true
+    Interface.glUpdateRequested = true
+    Interface.rastUpdateRequested = true
   }
 }
 

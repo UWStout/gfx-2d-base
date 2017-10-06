@@ -2,6 +2,11 @@
 import Shape from './Shape'
 import Point from './Point'
 
+// TODO: Import the Line object so you can use 'bresenham()'
+
+// Import the setPixel funciton for rasterizing
+import { setPixel } from '../main'
+
 // Import the transformPoint function from matrix_math
 import { transformPoint } from '../matrix_math'
 
@@ -76,6 +81,27 @@ class Triangle extends Shape {
     // Make the WebGL ArayBuffer for this shape (using nanoGL)
     this.buffer = new ArrayBuffer(gl, this._positions)
     this.buffer.attrib('aPosition', 3, gl.FLOAT)
+  }
+
+  // TODO: Complete this function to rasterize a triangle.
+  // Override parent function to rasterize a triangle. You may
+  // not use WebGL functions or any other libraries to draw. All
+  // changes to the canvas must happen through the 'setPixel' func.
+  rasterize () {
+    // Important notes:
+    // - Transform and round the vertices first
+    // - Feel free to use floating point arithmetic (DDA is recommended)
+    // - Take care to hand the filled vs. non-filled cases
+    // - Don't forget to pass this.color to setPixel or rasterizeLine calls
+    // - Be sure to test your code with all the unusual cases:
+    //   > Degenerate triangles (all the same point, all in a line)
+    //   > Triangles where sides are perfectly horizontal or vertical
+    //     (and combinations of vertical and horizontal)
+
+    // NOTE: These lines are temporary, remove them once you are done.
+    setPixel(this.P1, this.color)
+    setPixel(this.P2, this.color)
+    setPixel(this.P3, this.color)
   }
 }
 

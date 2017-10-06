@@ -2,6 +2,9 @@
 import Shape from './Shape'
 import Point from './Point'
 
+// Import the setPixel funciton for rasterizing
+import { setPixel } from '../main'
+
 // Import the transformPoint function from matrix_math
 import { transformPoint } from '../matrix_math'
 
@@ -85,6 +88,21 @@ class Circle extends Shape {
     // Make the WebGL ArayBuffer for this shape (using nanoGL)
     this.buffer = new ArrayBuffer(gl, this._positions)
     this.buffer.attrib('aPosition', 3, gl.FLOAT)
+  }
+
+  // TODO: Complete this function as the midpoint circle algorithm
+  // Override parent function to rasterize a circle. You may
+  // not use WebGL functions or any other libraries to draw. All
+  // changes to the canvas must happen through the 'setPixel' func.
+  rasterize () {
+    // Important notes:
+    // - Transform and round the center first
+    // - Make sure you use integer arithmetic EVERYWHERE
+    // - Take care to handle the filled vs non-filled cases
+    // - Don't forget to pass this.color to setPixel or rasterizeLine calls
+
+    // NOTE: This line is temporary, remove it once you are done.
+    setPixel(this.center, this.color)
   }
 }
 

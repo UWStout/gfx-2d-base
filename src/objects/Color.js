@@ -31,6 +31,13 @@ class Color {
   get g () { return this._c[1] }
   get b () { return this._c[2] }
 
+  get css () {
+    let R = Math.round(this._c[0] * 255)
+    let G = Math.round(this._c[1] * 255)
+    let B = Math.round(this._c[2] * 255)
+    return `rgb(${R}, ${G}, ${B})`
+  }
+
   /**
    * These setters allow you to update the internal tri-stimulus
    * components and guard against out of range values.

@@ -39,6 +39,15 @@ class Point {
       this._z = Z
     }
   }
+
+  /**
+   * Round the components of this point to the nearest integers
+   */
+  round () {
+    this._x = Math.round(this._x)
+    this._y = Math.round(this._y)
+    this._z = Math.round(this._z)
+  }
 }
 
 // Predefined object for the point (0, 0).

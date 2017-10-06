@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>CS 343: Project 1 - Transformer</title>
+    <title>CS 343: Project 2 - Shapely</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
@@ -14,15 +14,19 @@
   <div class="container">
 
     <div class="page-header">
-        <h1>Project 1 - Transformer // CS 343, UW Stout</h1>
+        <h1>Project 2 - Shapely // CS 343, UW Stout</h1>
     </div>
 
     <div class="row">
 
       <!-- The Main WebGL rendering window -->
       <div class="col-md-9">
-        <canvas id="c" class="rounded-border" style="width:100%; height:733px;"></canvas>
-        <a class="btn btn-default" id="saveImage" type="button" download="scene.png">Save Scene as Image</a>
+        <div class="relative">
+          <canvas id="glCanvas" class="absolute" hidden></canvas>
+          <canvas id="rasterizerCanvas" class="absolute"></canvas>
+        </div>
+        <hr style="margin:10px 0">
+        <a class="btn btn-default" id="saveImage" download="scene.png">Save Scene as Image</a>
       </div>
 
       <!--  Column for the GUI controls -->
@@ -43,6 +47,27 @@
           <label for="shapeSelect">Shapes in Scene</label>
           <select class="form-control" size="9" id="shapeSelect">
           </select>
+        </div>
+
+        <!-- Rendering mode options -->
+        <label>Rendering Options</label>
+        <div class="form-group rounded-border">
+          <div class="form-inline">
+            <label for="shapeSelect">Drawing Mode:</label>
+            <select class="form-control" id="renderingMode">
+              <option value="Rasterizer">Rasterizer</option>
+              <option value="OpenGL">OpenGL</option>
+            </select>
+          </div>
+          <hr style="margin:10px 0">
+          <div class="checkbox-inline form-inline">
+            <label><input type="checkbox" name="slowMoCheckbox" id="slowMoCheckbox">Slow-mo:
+            </label>
+            <div class="input-group">
+              <input type="number" class="form-control" value="3" min="1" max="15" name="slowMoSpeed" id="slowMoSpeed" disabled>
+              <span class="input-group-addon">px</span>
+            </div>
+          </div>
         </div>
 
         <!-- Controls for the current/new shape's properties -->

@@ -23,8 +23,11 @@ import { getWebGLContext, resizeCanvasToDisplaySize } from './utils'
 // Global variables shared by many of the functions below
 // NOTE: These are only accessible in this one file!!
 let gl = null // WebGL rendering context
+let rast = null // Canvas rendering context
+
 let shader = null // Compiled shader program
 let scene = null // Array of shapes in the scene
+let pixels = [] // Queue of pixels to add to the scene
 let projM = null // The projection matrix (2d, orthographic)
 
 /**
@@ -32,7 +35,7 @@ let projM = null // The projection matrix (2d, orthographic)
  */
 $(document).ready(() => {
   // Handle a lost webgl context
-  let canvas = document.getElementById('c')
+  let canvas = document.getElementById('glCanvas')
   canvas.addEventListener('webglcontextlost', (event) => {
     event.preventDefault()
   }, false)
@@ -53,8 +56,8 @@ $(document).ready(() => {
  * is ready or whenever the WebGL context is restored after being lost.
  */
 function initializeWebGL () {
-  // Get a WebGL rendering context for the Canvas element
-  gl = getWebGLContext($('#c')[0], {
+  // Get a WebGL rendering context for the OpenGL canvas element
+  gl = getWebGLContext($('#glCanvas')[0], {
     preserveDrawingBuffer: true,
     antialias: true,
     depth: false
@@ -62,6 +65,16 @@ function initializeWebGL () {
 
   // Set the clear color to black and opaque
   gl.clearColor(0.0, 0.0, 0.0, 1.0)
+
+  // Get a Canvas 2D context and setup for basic rendering
+  let rastCanvas = $('#rasterizerCanvas')[0]
+  rast = rastCanvas.getContext('2d')
+  rastCanvas.width = rastCanvas.clientWidth
+  rastCanvas.height = rastCanvas.clientHeight
+
+  // Clear rasterization canvas
+  rast.fillStyle = 'black'
+  rast.fillRect(0, 0, rastCanvas.width, rastCanvas.height)
 
   // Create a new shader program and compile and bind our shaders
   shader = new Program(gl, $('#vs').text(), $('#fs').text())
@@ -79,11 +92,19 @@ function initializeWebGL () {
   requestAnimationFrame(checkRender)
 }
 
+// Queue a pixel for being drawn next time the scene is rasterized
+export function setPixel (P, C) {
+  pixels.push({
+    point: P,
+    color: C
+  })
+}
+
 /**
  * Check if the window/display size has changed and
  * resize the canvas accordingly.
  */
-function resizeCanvas () {
+function resizeGLCanvas () {
   // Check window size and resize canvas if needed
   if (resizeCanvasToDisplaySize(gl.canvas)) {
     // Canvas was resized so update the viewport
@@ -106,17 +127,41 @@ function resizeCanvas () {
   return false
 }
 
+// Check if the canvas element size has changed and resize GL accordingly
+function resizeRastCanvas () {
+  if (rast.canvas.width !== rast.canvas.clientWidth ||
+      rast.canvas.height !== rast.canvas.clientHeight) {
+    rast.canvas.width = rast.canvas.clientWidth
+    rast.canvas.height = rast.canvas.clientHeight
+    return true
+  }
+
+  return false
+}
+
 /**
  * Check if the canvas needs a resize or the interface has requested a scene update
  * and render the scene if needed. This function is called continuously as part of
  * the rendering loop.
  */
 function checkRender (time) {
-  // Does canvas need a resize? or is an updated needed?
-  if (resizeCanvas() || Interface.updateRequested) {
-    // If so reset the update request and render the scene
-    Interface.updateRequested = false
-    renderScene(time)
+  // Rasterizer mode
+  if (Interface.rasterizerMode) {
+    if (resizeRastCanvas() || Interface.rastUpdateRequested) {
+      // If we resized (or re-rast is requested), must redraw entire scene
+      redrawSceneRast()
+      Interface.rastUpdateRequested = false
+    } else if (pixels.length > 0) {
+      // Otherwise, only draw if there are pixels in the queue
+      renderSceneRast(time)
+    }
+  } else {
+    // Does canvas need a resize? or is an updated needed?
+    if (resizeGLCanvas() || Interface.glUpdateRequested) {
+      // If so reset the update request and render the scene
+      Interface.glUpdateRequested = false
+      renderSceneGL(time)
+    }
   }
 
   // Repeat infinitely at a reasonable framerate
@@ -126,7 +171,7 @@ function checkRender (time) {
 /**
  * Draw all the shapes in the scene array
  */
-function renderScene (time) {
+function renderSceneGL (time) {
   // Clear the screen to black (colors only)
   gl.clear(gl.COLOR_BUFFER_BIT)
 
@@ -134,13 +179,13 @@ function renderScene (time) {
   shader.use()
 
   // Call renderShape for each shape
-  scene.forEach(renderShape)
+  scene.forEach(renderShapeGL)
 }
 
 /**
  * Draw a single shape using WebGL
  */
-function renderShape (shape, index) {
+function renderShapeGL (shape, index) {
   // Pass this shape's properties into the shader
   shape.color.passToShader(shader)
   shader.uProjection(projM)
@@ -171,4 +216,49 @@ function renderShape (shape, index) {
         break
     }
   }
+}
+
+function redrawSceneRast () {
+  // Clear the canvas
+  rast.fillStyle = 'black'
+  rast.fillRect(0, 0, rast.canvas.width, rast.canvas.height)
+
+  // Generate all pixels by re-rasterizing all shapes
+  for (var i = 0; i < scene.length; i++) {
+    scene[i].rasterize()
+  }
+
+  // Need the latest bounding rect to be able to invert Y
+  var rect = rast.canvas.getBoundingClientRect()
+
+  // Immediately render all the gathered pixels
+  while (pixels.length > 0) {
+    rasterizePixel(
+      pixels[0].point.x,
+      rect.height - pixels[0].point.y,
+      pixels[0].color.css
+    )
+    pixels.shift()
+  }
+}
+
+function renderSceneRast (time) {
+  // Need the latest bounding rect to be able to invert Y
+  var rect = rast.canvas.getBoundingClientRect()
+
+  // Render the gathered pixels up to the speed
+  var slowMoCounter = Interface.slowMoSpeed * 5
+  while (pixels.length > 0 && (!Interface.slowMoEnabled || slowMoCounter > 0)) {
+    rasterizePixel(
+      pixels[0].point.x,
+      rect.height - pixels[0].point.y,
+      pixels[0].color.css
+    )
+    pixels.shift(); slowMoCounter--
+  }
+}
+
+function rasterizePixel (x, y, color) {
+  rast.fillStyle = color
+  rast.fillRect(x, y, 1, 1)
 }
